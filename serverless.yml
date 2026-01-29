@@ -1,0 +1,33 @@
+service: ats-integration-service
+
+provider:
+  name: aws
+  runtime: python3.9
+  environment:
+    ATS_BASE_URL: "https://muskan-ats-service.free.beeceptor.com"
+    ATS_API_KEY: "my-secret-token-123"
+
+plugins:
+  - serverless-offline
+
+functions:
+  getJobs:
+    handler: handler.get_jobs
+    events:
+      - http:
+          path: jobs
+          method: get
+
+  createCandidate:
+    handler: handler.create_candidate
+    events:
+      - http:
+          path: candidates
+          method: post
+
+  getApplications:
+    handler: handler.get_applications
+    events:
+      - http:
+          path: applications
+          method: get
