@@ -15,6 +15,12 @@ We are using **Zoho Recruit** as our ATS. Here is how to set up a sandbox enviro
 4. Once logged in, you will have access to a 15-day free trial which acts as your Sandbox environment.
 5. Create a dummy Job Opening (e.g., "Python Developer") to start testing.
 
+my .env file tokens are these
+ZOHO_CLIENT_ID=1000.75SM1MFKYRW1GKDUMAF5GK5FTI3OEX
+ZOHO_CLIENT_SECRET=e70cddb75fcc920575285930f8b13c6ed9846893cc
+ZOHO_REFRESH_TOKEN=1000.18acb5e976c07da14ff8f2511a9df094.183c1706e73c9c700daee728377b8bca
+ATS_BASE_URL=https://recruit.zoho.in/recruit/v2
+
 ---
 
 ## 2. How to generate API key / token
