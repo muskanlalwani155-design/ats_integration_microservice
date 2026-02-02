@@ -1,72 +1,86 @@
-ATS Integration Microservice (Python & Serverless)
-This microservice provides a unified REST API to interact with an Applicant Tracking System (ATS). It is built using Python and the Serverless Framework, designed to run on AWS Lambda.
+# Serverless ATS Microservice (Zoho Recruit Integration)
 
-1. How to create ATS Sandbox (Beeceptor)
-Since this project integrates with a mock ATS, we use Beeceptor to simulate the ATS backend.
+This project integrates with **Zoho Recruit ATS** to provide a unified API for fetching jobs, creating candidates, and listing applications.
 
-Go to Beeceptor.
+> ** NOTE FOR EVALUATOR:** To make testing easier for you, I have **pre-configured the API Credentials directly in the code.** You do not need to create an account or generate tokens manually. Just follow the **"How to run the service locally"** section below.
 
-Enter a unique endpoint name (e.g., muskan-ats-api) and click Create Endpoint.
+---
 
-Mock Rules Setup:
+## 1. How to create free trial/sandbox in your ATS
+We are using **Zoho Recruit** as our ATS. Here is how to set up a sandbox environment:
 
-Create a GET /jobs rule to return a list of open positions.
+1. Visit the [Zoho Recruit Sign Up Page](https://www.zoho.com/recruit/).
+2. Sign up for a free account.
+3. Select the **"Corporate HR"** edition during setup.
+4. Once logged in, you will have access to a 15-day free trial which acts as your Sandbox environment.
+5. Create a dummy Job Opening (e.g., "Python Developer") to start testing.
 
-Create a POST /candidates rule to accept candidate applications.
+---
 
-Create a GET /applications rule to list candidates for a specific job.
+## 2. How to generate API key / token
+Zoho Recruit uses **OAuth 2.0** for authentication. Follow these steps to generate the required tokens:
 
-2. How to generate API Key / Token
-For this integration, we use a static Authorization Token to secure the connection:
+1. **Register Client:**
+   - Go to [Zoho API Console](https://api-console.zoho.in/).
+   - Click "Add Client" > "Server-based Applications".
+   - Enter `http://localhost:3000/callback` as the Authorized Redirect URI.
+   - Copy the **Client ID** and **Client Secret**.
 
-You can define any alphanumeric string as your secret token (e.g., my-secret-ats-token-2026).
+2. **Generate Grant Token (One-time code):**
+   - Paste this URL in your browser (replace `YOUR_CLIENT_ID`):
+     `https://accounts.zoho.in/oauth/v2/auth?scope=ZohoRecruit.modules.ALL&client_id=YOUR_CLIENT_ID&response_type=code&access_type=offline&redirect_uri=http://localhost:3000/callback`
+   - Click "Accept". Copy the `code` from the redirect URL.
 
-This token must be added to your environment variables in the serverless.yml file under the key ATS_API_KEY.
+3. **Generate Refresh Token:**
+   - Make a POST request to `https://accounts.zoho.in/oauth/v2/token` with `client_id`, `client_secret`, `grant_type=authorization_code`, and the `code` from the previous step.
+   - The response will contain the **Refresh Token**.
 
-In a production environment, this would be generated via the ATS settings dashboard.
+*(Note: These credentials have already been generated and embedded in the code for this submission.)*
 
-3. How to run the service locally
-To run and test the microservice on your machine:
+---
 
-Install Serverless Framework:
+## 3. How to run the service locally
+Since the environment is pre-configured, follow these simple steps:
 
-Bash
-npm install -g serverless
-Install Plugin for Local Testing:
-
-Bash
-npm install serverless-offline --save-dev
-Set Environment Variables: Ensure your serverless.yml has the following:
-
-YAML
-environment:
-  ATS_BASE_URL: https://your-endpoint.beeceptor.com
-  ATS_API_KEY: your-static-token
-Start the Service:
-
-Bash
-serverless offline
-The service will start at http://localhost:3000/dev/.
-
-4. Example API Calls
-A. Get All Open Jobs
-Method: GET
-
-Endpoint: /jobs
+1. **Install Dependencies:**
+   Open your terminal in the project folder and run:
+   ```bash
+   npm install
+Start the Server: Run the following command to start the offline server:
 
 Bash
-curl http://localhost:3000/dev/jobs
-B. Create a New Candidate
-Method: POST
+serverless offline start
+Verify: The service will start running at http://localhost:3000.
 
-Endpoint: /candidates
+4. Example curl/Postman calls
+You can use the links below to test the API immediately in your browser or Postman.
 
-PowerShell
-Invoke-RestMethod -Uri "http://localhost:3000/dev/candidates" -Method Post -Body '{"name": "Rahul Sharma", "email": "rahul@example.com", "phone": "9988776655", "resume_url": "https://link.com/cv.pdf", "job_id": "102"}' -ContentType "application/json"
-C. Get Applications for a Job
-Method: GET
+A. List All Jobs (GET)
+Fetches all open job listings from the ATS. 👉 Link: http://localhost:3000/dev/jobs
 
-Endpoint: /applications?job_id=101
+cURL:
 
 Bash
-curl http://localhost:3000/dev/applications?job_id=101
+curl --location --request GET 'http://localhost:3000/dev/jobs'
+B. Create Candidate (POST)
+Creates a candidate and associates them with the "Python Backend Developer" job.
+
+cURL:
+
+Bash
+curl --location --request POST 'http://localhost:3000/dev/candidates' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Evaluator Test",
+    "email": "evaluator.test@example.com",
+    "phone": "9999999999",
+    "resume_url": "[https://linkedin.com/in/test](https://linkedin.com/in/test)",
+    "job_id": "210479000000354814"
+}'
+C. View Applications (GET)
+Lists all candidates applied to the specific Job ID (210479000000354814). 👉 Link: http://localhost:3000/dev/applications?job_id=210479000000354814
+
+cURL:
+
+Bash
+curl --location --request GET 'http://localhost:3000/dev/applications?job_id=210479000000354814'

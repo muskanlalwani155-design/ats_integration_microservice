@@ -1,14 +1,23 @@
-service: ats-integration-service
+service: ats-integration
 
 provider:
   name: aws
   runtime: python3.9
+  region: us-east-1
+  timeout: 30
   environment:
-    ATS_BASE_URL: "https://muskan-ats-service.free.beeceptor.com"
-    ATS_API_KEY: "my-secret-token-123"
+    ZOHO_CLIENT_ID: ${env:ZOHO_CLIENT_ID}
+    ZOHO_CLIENT_SECRET: ${env:ZOHO_CLIENT_SECRET}
+    ZOHO_REFRESH_TOKEN: ${env:ZOHO_REFRESH_TOKEN}
+    ATS_BASE_URL: https://recruit.zoho.in/recruit/v2
 
 plugins:
+  - serverless-python-requirements
   - serverless-offline
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux 
 
 functions:
   getJobs:
@@ -17,14 +26,12 @@ functions:
       - http:
           path: jobs
           method: get
-
   createCandidate:
     handler: handler.create_candidate
     events:
       - http:
           path: candidates
           method: post
-
   getApplications:
     handler: handler.get_applications
     events:
